@@ -1257,9 +1257,15 @@ function dateFormat(date, format, local = "en") {
     return require$$0$1(date).locale(local).format(format);
 }
 function dateStringToDate(dateString) {
-    const parseDate = require$$0$1(dateString);
-    if (!parseDate.isValid())
+    /* Formats yyyy-MM-dd or yyyy/MM/dd */
+    const isValidDateFormat = /^\d{4}[-/]\d{2}[-/]\d{2}$|^\d{2}[-/]\d{2}[-/]\d{4}$/.test(dateString);
+    if (!isValidDateFormat) {
         return null;
+    }
+    const parseDate = require$$0$1(dateString);
+    if (!parseDate.isValid()) {
+        return null;
+    }
     return parseDate.toDate();
 }
 function previousMonthBy(date) {
