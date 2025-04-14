@@ -6,8 +6,8 @@
         "moduleResolution": "node",
         "jsx": "react-jsx",
         "declaration": true,
-        "declarationDir": "./dist/types",  // создаст папку с типами
-        "outDir": "./dist",  // выходная папка для скомпилированных файлов
+        "declarationDir": "./dist/types",
+        "outDir": "./dist",
         "esModuleInterop": true,
         "skipLibCheck": true
     },
