@@ -8,7 +8,6 @@ import { DateType } from "../types";
 import ToggleButton from "./ToggleButton";
 
 const dateRegex = /^\d{4}[-/]\d{2}[-/]\d{2}$|^\d{2}[-/]\d{2}[-/]\d{4}$/;
-const dateTimeRegex = /^\d{4}[-/]\d{2}[-/]\d{2}(?:\s+\d{2}:\d{2})?$|^\d{2}[-/]\d{2}[-/]\d{4}(?:\s+\d{2}:\d{2})?$/;
 
 const Input = () => {
     // Context
@@ -73,22 +72,12 @@ const Input = () => {
             const dates: Date[] = [];
 
             if (asSingle) {
-              if (dateTimeRegex.test(inputValue)) {
-                const [datePart, timePart] = inputValue.split(/\s+/);
-                const date = dateStringToDate(datePart);
-                
-                if (date) {
-                    if (timePart) {
-                        const [hours, minutes] = timePart.split(':');
-                        date.setHours(parseInt(hours, 10));
-                        date.setMinutes(parseInt(minutes, 10));
+                if (dateRegex.test(inputValue)) {
+                    const date = dateStringToDate(inputValue);
+                    if (date) {
+                        dates.push(date);
                     }
-                    changeDatepickerValue(
-                        { startDate: date, endDate: date },
-                        e.target
-                    );
                 }
-              }
             } else {
                 const parsed = inputValue.split(separator).map(str => str.trim());
 
