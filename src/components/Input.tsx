@@ -9,7 +9,7 @@ import ToggleButton from "./ToggleButton";
 
 const dateRegex = /^\d{4}[-/]\d{2}[-/]\d{2}$|^\d{2}[-/]\d{2}[-/]\d{4}$/;
 
-const dateTimeRangeRegex = /^(\d{2}\/\d{2}\/\d{4}) (\d{2}:\d{2}) - (\d{2}:\d{2})$/;
+const dateTimeRegex = /^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}$/;
 
 const parseSingleDateTimeRange = (input: string) => {
     const match = input.match(dateTimeRangeRegex);
@@ -109,25 +109,25 @@ const Input = () => {
             };
 
                 if (asSingle) {
-                  const dateOnly = extractDateOnly(inputValue);
+                  if (displayFormat.includes("HH:mm") && dateTimeRegex.test(inputValue)) {
+                    const [datePart, timePart] = inputValue.split(" ");
+                    const [month, day, year] = datePart.split("/");
+                    const [hour, minute] = timePart.split(":");
                 
-                  if (displayFormat === "MM/DD/YYYY HH:mm - HH:mm" && dateOnly) {
-                    const [month, day, year] = dateOnly.split("/");
                     const baseDate = `${year}-${month}-${day}`;
+                    const date = new Date(`${baseDate}T${hour}:${minute}:00`);
                 
-                    const startDate = new Date(`${baseDate}T${defaultStartTime || "09:00"}:00`);
-                    const endDate = new Date(`${baseDate}T${defaultEndTime || "18:00"}:00`);
-                
-                    dates.push(startDate);
-                
-                    changeDatepickerValue({ startDate, endDate }, e.target);
-                    changeDayHover(endDate);
-                    changeInputText(`${dateOnly} ${defaultStartTime || "09:00"} - ${defaultEndTime || "18:00"}`);
-                    return;
+                    if (!isNaN(date.getTime())) {
+                      dates.push(date);
+                      changeDatepickerValue({ startDate: date, endDate: date }, e.target);
+                      changeDayHover(date);
+                      changeInputText(inputValue);
+                      return;
+                    }
                   }
                 
-                  if (dateOnly) {
-                    const [month, day, year] = dateOnly.split("/");
+                  if (dateOnlyRegex.test(inputValue)) {
+                    const [month, day, year] = inputValue.split("/");
                     const date = new Date(`${year}-${month}-${day}`);
                     if (!isNaN(date.getTime())) {
                       dates.push(date);
