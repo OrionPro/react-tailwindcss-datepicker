@@ -11,36 +11,6 @@ const dateRegex = /^\d{4}[-/]\d{2}[-/]\d{2}$|^\d{2}[-/]\d{2}[-/]\d{4}$/;
 
 const dateTimeRegex = /^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}$/;
 
-const parseSingleDateTimeRange = (input: string) => {
-    const match = input.match(dateTimeRangeRegex);
-    if (!match || match.length < 9) return null;
-
-    const [
-        ,
-        month,
-        day,
-        year,
-        startHour,
-        startMinute,
-        endHour,
-        endMinute,
-    ] = match;
-
-    const baseDate = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
-
-    const startDate = new Date(`${baseDate}T${startHour}:${startMinute}:00`);
-    const endDate = new Date(`${baseDate}T${endHour}:${endMinute}:00`);
-
-    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-        return null;
-    }
-
-    return {
-        startDate,
-        endDate,
-    };
-};
-
 const Input = () => {
     // Context
     const {
@@ -118,10 +88,10 @@ const Input = () => {
                     const date = new Date(`${baseDate}T${hour}:${minute}:00`);
                 
                     if (!isNaN(date.getTime())) {
-                      dates.push(date);
                       changeDatepickerValue({ startDate: date, endDate: date }, e.target);
                       changeDayHover(date);
                       changeInputText(inputValue);
+                        dates.push(date);
                       return;
                     }
                   }
