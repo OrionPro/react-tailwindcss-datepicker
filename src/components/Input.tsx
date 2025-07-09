@@ -9,6 +9,38 @@ import ToggleButton from "./ToggleButton";
 
 const dateRegex = /^\d{4}[-/]\d{2}[-/]\d{2}$|^\d{2}[-/]\d{2}[-/]\d{4}$/;
 
+const dateTimeRangeRegex = /^(\d{2}\/\d{2}\/\d{4}) (\d{2}:\d{2}) - (\d{2}:\d{2})$/;
+
+const parseSingleDateTimeRange = (input: string) => {
+    const match = input.match(dateTimeRangeRegex);
+    if (!match || match.length < 9) return null;
+
+    const [
+        ,
+        month,
+        day,
+        year,
+        startHour,
+        startMinute,
+        endHour,
+        endMinute,
+    ] = match;
+
+    const baseDate = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+
+    const startDate = new Date(`${baseDate}T${startHour}:${startMinute}:00`);
+    const endDate = new Date(`${baseDate}T${endHour}:${endMinute}:00`);
+
+    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+        return null;
+    }
+
+    return {
+        startDate,
+        endDate,
+    };
+};
+
 const Input = () => {
     // Context
     const {
@@ -71,7 +103,20 @@ const Input = () => {
 
             const dates: Date[] = [];
 
-            if (asSingle) {
+              // eslint-disable-next-line no-console
+            console.log('inputValue', inputValue);
+            if (asSingle && displayFormat === "MM/DD/YYYY HH:mm - HH:mm") {
+                // eslint-disable-next-line no-console
+                console.log('asSingle');
+
+                const parsed = parseSingleDateTimeRange(inputValue);
+                if (parsed) {
+                    changeDatepickerValue(parsed, e.target);
+                    changeDayHover(parsed.endDate);
+                    changeInputText(inputValue);
+                    return;
+                }
+            } else if (asSingle) {
                 if (dateRegex.test(inputValue)) {
                     const date = dateStringToDate(inputValue);
                     if (date) {
