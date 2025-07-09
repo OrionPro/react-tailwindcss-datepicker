@@ -104,14 +104,22 @@ const Input = () => {
             const dates: Date[] = [];
 
             if (asSingle && displayFormat === "MM/DD/YYYY HH:mm - HH:mm") {
-                const parsed = parseSingleDateTimeRange(inputValue);
-                if (parsed) {
-                    changeDatepickerValue(parsed, e.target);
-                    changeDayHover(parsed.endDate);
-                }
-
-                changeInputText(inputValue);
+              const dateOnlyMatch = inputValue.match(dateRegex);
+              if (dateOnlyMatch) {
+                const dateOnly = dateOnlyMatch[0]; // например, "07/10/2025"
+            
+                const [month, day, year] = dateOnly.split("/");
+                const baseDate = `${year}-${month}-${day}`;
+            
+                const startDate = new Date(`${baseDate}T${defaultStartTime || "09:00"}:00`);
+                const endDate = new Date(`${baseDate}T${defaultEndTime || "18:00"}:00`);
+            
+                changeDatepickerValue({ startDate, endDate }, e.target);
+                changeDayHover(endDate);
+            
+                changeInputText(`${dateOnly} ${defaultStartTime || "09:00"} - ${defaultEndTime || "18:00"}`);
                 return;
+              }
             } else if (asSingle) {
                 if (dateRegex.test(inputValue)) {
                     const date = dateStringToDate(inputValue);
