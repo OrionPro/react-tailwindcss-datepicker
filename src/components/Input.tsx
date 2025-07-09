@@ -73,35 +73,24 @@ const Input = () => {
 
             const dates: Date[] = [];
 
-            const extractDateOnly = (input: string) => {
-              const match = input.match(/\d{2}\/\d{2}\/\d{4}/);
-              return match ? match[0] : null;
-            };
-
                 if (asSingle) {
-                  if (displayFormat.includes("HH:mm") && dateTimeRegex.test(inputValue)) {
-                    const [datePart, timePart] = inputValue.split(" ");
-                    const [month, day, year] = datePart.split("/");
-                    const [hour, minute] = timePart.split(":");
+                  if (displayFormat.includes("HH:mm")) {
+            
+                    const dateOnlyStr = inputValue.split(" ")[0];
                 
-                    const baseDate = `${year}-${month}-${day}`;
-                    const date = new Date(`${baseDate}T${hour}:${minute}:00`);
-                      
-                    dates.push(date);
-                      
-                    if (!isNaN(date.getTime())) {
-                      changeDatepickerValue({ startDate: date, endDate: date }, e.target);
-                      changeDayHover(date);
-                      changeInputText(inputValue);
-                      return;
+                    if (dateRegex.test(dateOnlyStr)) {
+                      const date = dateStringToDate(dateOnlyStr);
+                      if (date) {
+                        dates.push(date);
+                      }
                     }
-                  }
-                
-                  if (dateRegex.test(inputValue)) {
-                    const [month, day, year] = inputValue.split("/");
-                    const date = new Date(`${year}-${month}-${day}`);
-                    if (!isNaN(date.getTime())) {
-                      dates.push(date);
+                  } else {
+        
+                    if (dateRegex.test(inputValue)) {
+                      const date = dateStringToDate(inputValue);
+                      if (date) {
+                        dates.push(date);
+                      }
                     }
                   }
                 } else {
