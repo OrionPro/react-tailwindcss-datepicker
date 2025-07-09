@@ -103,11 +103,15 @@ const Input = () => {
 
             const dates: Date[] = [];
 
+            const extractDateOnly = (input: string) => {
+              const match = input.match(/\d{2}\/\d{2}\/\d{4}/);
+              return match ? match[0] : null;
+            };
+
                 if (asSingle) {
-                  const dateOnlyMatch = inputValue.match(dateRegex);
+                  const dateOnly = extractDateOnly(inputValue);
                 
-                  if (displayFormat === "MM/DD/YYYY HH:mm - HH:mm" && dateOnlyMatch) {
-                    const dateOnly = dateOnlyMatch[0];
+                  if (displayFormat === "MM/DD/YYYY HH:mm - HH:mm" && dateOnly) {
                     const [month, day, year] = dateOnly.split("/");
                     const baseDate = `${year}-${month}-${day}`;
                 
@@ -115,11 +119,17 @@ const Input = () => {
                     const endDate = new Date(`${baseDate}T${defaultEndTime || "18:00"}:00`);
                 
                     dates.push(startDate);
+                
+                    changeDatepickerValue({ startDate, endDate }, e.target);
+                    changeDayHover(endDate);
+                    changeInputText(`${dateOnly} ${defaultStartTime || "09:00"} - ${defaultEndTime || "18:00"}`);
+                    return;
                   }
                 
-                  if (dateOnlyMatch) {
-                    const date = dateStringToDate(dateOnlyMatch[0]);
-                    if (date) {
+                  if (dateOnly) {
+                    const [month, day, year] = dateOnly.split("/");
+                    const date = new Date(`${year}-${month}-${day}`);
+                    if (!isNaN(date.getTime())) {
                       dates.push(date);
                     }
                   }
