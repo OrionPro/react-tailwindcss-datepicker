@@ -114,12 +114,7 @@ const Input = () => {
                     const startDate = new Date(`${baseDate}T${defaultStartTime || "09:00"}:00`);
                     const endDate = new Date(`${baseDate}T${defaultEndTime || "18:00"}:00`);
                 
-                    dates.push(startDate); // <-- вот этого не хватало
-                    // дальше как обычно
-                    changeDatepickerValue({ startDate, endDate }, e.target);
-                    changeDayHover(endDate);
-                    changeInputText(`${dateOnly} ${defaultStartTime || "09:00"} - ${defaultEndTime || "18:00"}`);
-                    return;
+                    dates.push(startDate);
                   }
                 
                   if (dateOnlyMatch) {
