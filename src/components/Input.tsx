@@ -73,27 +73,14 @@ const Input = () => {
 
             const dates: Date[] = [];
 
-                if (asSingle) {
-                  if (displayFormat.includes("HH:mm")) {
-            
-                    const dateOnlyStr = inputValue.split(" ")[0];
-                
-                    if (dateRegex.test(dateOnlyStr)) {
-                      const date = dateStringToDate(dateOnlyStr);
-                      if (date) {
+            if (asSingle) {
+                if (dateRegex.test(inputValue)) {
+                    const date = dateStringToDate(inputValue);
+                    if (date) {
                         dates.push(date);
-                      }
                     }
-                  } else {
-        
-                    if (dateRegex.test(inputValue)) {
-                      const date = dateStringToDate(inputValue);
-                      if (date) {
-                        dates.push(date);
-                      }
-                    }
-                  }
-                } else {
+                }
+            } else {
                 const parsed = inputValue.split(separator).map(str => str.trim());
 
                 let startDate: DateType | undefined;
