@@ -86,17 +86,18 @@ const Input = () => {
                 
                     const baseDate = `${year}-${month}-${day}`;
                     const date = new Date(`${baseDate}T${hour}:${minute}:00`);
-                
+                      
+                    dates.push(date);
+                      
                     if (!isNaN(date.getTime())) {
                       changeDatepickerValue({ startDate: date, endDate: date }, e.target);
                       changeDayHover(date);
                       changeInputText(inputValue);
-                        dates.push(date);
                       return;
                     }
                   }
                 
-                  if (dateOnlyRegex.test(inputValue)) {
+                  if (dateRegex.test(inputValue)) {
                     const [month, day, year] = inputValue.split("/");
                     const date = new Date(`${year}-${month}-${day}`);
                     if (!isNaN(date.getTime())) {
