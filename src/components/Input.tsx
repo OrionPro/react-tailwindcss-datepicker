@@ -103,19 +103,15 @@ const Input = () => {
 
             const dates: Date[] = [];
 
-              // eslint-disable-next-line no-console
-            console.log('inputValue', inputValue);
             if (asSingle && displayFormat === "MM/DD/YYYY HH:mm - HH:mm") {
-                // eslint-disable-next-line no-console
-                console.log('asSingle');
-
                 const parsed = parseSingleDateTimeRange(inputValue);
                 if (parsed) {
                     changeDatepickerValue(parsed, e.target);
                     changeDayHover(parsed.endDate);
-                    changeInputText(inputValue);
-                    return;
                 }
+
+                changeInputText(inputValue);
+                return;
             } else if (asSingle) {
                 if (dateRegex.test(inputValue)) {
                     const date = dateStringToDate(inputValue);
