@@ -9,8 +9,6 @@ import ToggleButton from "./ToggleButton";
 
 const dateRegex = /^\d{4}[-/]\d{2}[-/]\d{2}$|^\d{2}[-/]\d{2}[-/]\d{4}$/;
 
-const dateTimeRegex = /^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}$/;
-
 const Input = () => {
     // Context
     const {
