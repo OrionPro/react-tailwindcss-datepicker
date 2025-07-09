@@ -103,31 +103,32 @@ const Input = () => {
 
             const dates: Date[] = [];
 
-            if (asSingle && displayFormat === "MM/DD/YYYY HH:mm - HH:mm") {
-              const dateOnlyMatch = inputValue.match(dateRegex);
-              if (dateOnlyMatch) {
-                const dateOnly = dateOnlyMatch[0]; // например, "07/10/2025"
-            
-                const [month, day, year] = dateOnly.split("/");
-                const baseDate = `${year}-${month}-${day}`;
-            
-                const startDate = new Date(`${baseDate}T${defaultStartTime || "09:00"}:00`);
-                const endDate = new Date(`${baseDate}T${defaultEndTime || "18:00"}:00`);
-            
-                changeDatepickerValue({ startDate, endDate }, e.target);
-                changeDayHover(endDate);
-            
-                changeInputText(`${dateOnly} ${defaultStartTime || "09:00"} - ${defaultEndTime || "18:00"}`);
-                return;
-              }
-            } else if (asSingle) {
-                if (dateRegex.test(inputValue)) {
-                    const date = dateStringToDate(inputValue);
+                if (asSingle) {
+                  const dateOnlyMatch = inputValue.match(dateRegex);
+                
+                  if (displayFormat === "MM/DD/YYYY HH:mm - HH:mm" && dateOnlyMatch) {
+                    const dateOnly = dateOnlyMatch[0];
+                    const [month, day, year] = dateOnly.split("/");
+                    const baseDate = `${year}-${month}-${day}`;
+                
+                    const startDate = new Date(`${baseDate}T${defaultStartTime || "09:00"}:00`);
+                    const endDate = new Date(`${baseDate}T${defaultEndTime || "18:00"}:00`);
+                
+                    dates.push(startDate); // <-- вот этого не хватало
+                    // дальше как обычно
+                    changeDatepickerValue({ startDate, endDate }, e.target);
+                    changeDayHover(endDate);
+                    changeInputText(`${dateOnly} ${defaultStartTime || "09:00"} - ${defaultEndTime || "18:00"}`);
+                    return;
+                  }
+                
+                  if (dateOnlyMatch) {
+                    const date = dateStringToDate(dateOnlyMatch[0]);
                     if (date) {
-                        dates.push(date);
+                      dates.push(date);
                     }
-                }
-            } else {
+                  }
+                } else {
                 const parsed = inputValue.split(separator).map(str => str.trim());
 
                 let startDate: DateType | undefined;
