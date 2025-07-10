@@ -52,6 +52,9 @@ interface DatepickerStore {
     maxDate?: DateType | null;
     minDate?: DateType | null;
 
+    startTime?: string;
+    endTime?: string;
+
     period: Period;
     placeholder?: string | null;
     popoverDirection?: PopoverDirectionType;
@@ -105,6 +108,9 @@ const DatepickerContext = createContext<DatepickerStore>({
 
     maxDate: null,
     minDate: null,
+
+    startTime: undefined,
+    endTime: undefined,
 
     period: { start: null, end: null },
     popoverDirection: undefined,

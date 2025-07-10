@@ -87,6 +87,8 @@ export interface DatepickerType {
     readOnly?: boolean;
     minDate?: DateType;
     maxDate?: DateType;
+    startTime?: string;
+    endTime?: string;
     dateLooking?: DateLookingType;
     disabledDates?: DateRangeType[];
     startWeekOn?: WeekStringType;

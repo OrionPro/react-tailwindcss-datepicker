@@ -25,6 +25,8 @@ interface DatepickerStore {
     inputText: string;
     maxDate?: DateType | null;
     minDate?: DateType | null;
+    startTime?: string;
+    endTime?: string;
     period: Period;
     placeholder?: string | null;
     popoverDirection?: PopoverDirectionType;

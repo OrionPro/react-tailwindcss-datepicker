@@ -709,6 +709,8 @@ const DatepickerContext = require$$0.createContext({
     inputText: "",
     maxDate: null,
     minDate: null,
+    startTime: undefined,
+    endTime: undefined,
     period: { start: null, end: null },
     popoverDirection: undefined,
     primaryColor: DEFAULT_COLOR,
@@ -1929,9 +1931,10 @@ const ToggleButton = (e) => {
     return e.isEmpty ? jsxRuntimeExports.jsx(DateIcon, { className: "h-5 w-5" }) : jsxRuntimeExports.jsx(CloseIcon, { className: "h-5 w-5" });
 };
 
+const dateRegex = /^\d{4}[-/]\d{2}[-/]\d{2}$|^\d{2}[-/]\d{2}[-/]\d{4}$/;
 const Input = () => {
     // Context
-    const { primaryColor, period, dayHover, changeDayHover, calendarContainer, arrowContainer, inputText, changeInputText, hideDatepicker, changeDatepickerValue, asSingle, placeholder, separator, disabled, inputClassName, toggleClassName, toggleIcon, readOnly, displayFormat, inputId, inputName, classNames, popoverDirection, required, input, setInput } = require$$0.useContext(DatepickerContext);
+    const { primaryColor, period, dayHover, changeDayHover, calendarContainer, arrowContainer, inputText, changeInputText, hideDatepicker, changeDatepickerValue, asSingle, placeholder, separator, disabled, inputClassName, toggleClassName, toggleIcon, readOnly, startTime, endTime, displayFormat, inputId, inputName, classNames, popoverDirection, required, input, setInput } = require$$0.useContext(DatepickerContext);
     // UseRefs
     const buttonRef = require$$0.useRef(null);
     const inputRef = require$$0.useRef(null);
@@ -1950,28 +1953,55 @@ const Input = () => {
                 ? inputClassName
                 : defaultInputClassName;
     }, [inputRef, classNames, primaryColor, inputClassName]);
+    const extractDateOnly = (input) => {
+        const match = input.match(/\d{2}\/\d{2}\/\d{4}/);
+        return match ? match[0] : null;
+    };
     const handleInputChange = require$$0.useCallback((e) => {
         const inputValue = e.target.value;
         const dates = [];
         if (asSingle) {
-            const date = dateStringToDate(inputValue);
-            if (date) {
-                dates.push(date);
+            const dateOnly = extractDateOnly(inputValue);
+            if (displayFormat === "MM/DD/YYYY HH:mm - HH:mm" && dateOnly) {
+                if (!startTime || !endTime)
+                    return;
+                const [month, day, year] = dateOnly.split("/");
+                const baseDate = `${year}-${month}-${day}`;
+                const startDate = new Date(`${baseDate}T${startTime}:00`);
+                const endDate = new Date(`${baseDate}T${endTime}:00`);
+                dates.push(startDate);
+                changeDayHover(null);
+                changeDatepickerValue({ startDate, endDate }, e.target);
+                const formattedText = `${dateOnly} ${startTime} - ${endTime}`;
+                changeInputText(formattedText);
+                return;
+            }
+            // Normal mode
+            if (dateRegex.test(inputValue)) {
+                const date = dateStringToDate(inputValue);
+                if (date) {
+                    dates.push(date);
+                }
             }
         }
         else {
-            const parsed = inputValue.split(separator);
+            const parsed = inputValue.split(separator).map(str => str.trim());
             let startDate;
             let endDate;
             if (parsed.length === 2) {
-                dateStringToDate(parsed[0]);
-                startDate = dateStringToDate(parsed[0]);
-                endDate = dateStringToDate(parsed[1]);
+                if (dateRegex.test(parsed[0]) && dateRegex.test(parsed[1])) {
+                    startDate = dateStringToDate(parsed[0]);
+                    endDate = dateStringToDate(parsed[1]);
+                }
             }
             else {
                 const middle = Math.floor(inputValue.length / 2);
-                startDate = dateStringToDate(inputValue.slice(0, middle));
-                endDate = dateStringToDate(inputValue.slice(middle));
+                const firstPart = inputValue.slice(0, middle);
+                const secondPart = inputValue.slice(middle);
+                if (dateRegex.test(firstPart) && dateRegex.test(secondPart)) {
+                    startDate = dateStringToDate(firstPart);
+                    endDate = dateStringToDate(secondPart);
+                }
             }
             if (startDate && endDate && dateIsBefore(startDate, endDate, "date")) {
                 dates.push(startDate);
@@ -2026,32 +2056,30 @@ const Input = () => {
     }, [input, inputRef, setInput]);
     require$$0.useEffect(() => {
         const button = buttonRef?.current;
+        if (!button)
+            return;
         function focusInput(e) {
             e.stopPropagation();
             const input = inputRef.current;
-            if (input) {
-                input.focus();
-                if (inputText) {
-                    changeInputText("");
-                    if (dayHover) {
-                        changeDayHover(null);
-                    }
-                    if (period.start && period.end) {
-                        changeDatepickerValue({
-                            startDate: null,
-                            endDate: null
-                        }, input);
-                    }
-                }
+            if (!input)
+                return;
+            input.focus();
+            if (!inputText)
+                return;
+            changeInputText("");
+            if (dayHover) {
+                changeDayHover(null);
+            }
+            if (period.start && period.end) {
+                changeDatepickerValue({
+                    startDate: null,
+                    endDate: null
+                }, input);
             }
         }
-        if (button) {
-            button.addEventListener("click", focusInput);
-        }
+        button.addEventListener("click", focusInput);
         return () => {
-            if (button) {
-                button.removeEventListener("click", focusInput);
-            }
+            button.removeEventListener("click", focusInput);
         };
     }, [
         changeDatepickerValue,
@@ -2286,7 +2314,7 @@ const VerticalDash = () => {
 
 const Datepicker = (props) => {
     // Props
-    const { asSingle = false, classNames = undefined, configs = undefined, containerClassName = null, dateLooking = DEFAULT_DATE_LOOKING, disabledDates = null, disabled = false, displayFormat = DATE_FORMAT, i18n = LANGUAGE, inputClassName = null, inputId, inputName, minDate = undefined, maxDate = undefined, onChange, placeholder = null, popupClassName = null, popoverDirection = undefined, primaryColor = DEFAULT_COLOR, separator = DEFAULT_SEPARATOR, showFooter = false, showShortcuts = false, startFrom = null, startWeekOn = START_WEEK, readOnly = false, required = false, toggleClassName = null, toggleIcon = undefined, useRange = true, value = null } = props;
+    const { asSingle = false, classNames = undefined, configs = undefined, containerClassName = null, dateLooking = DEFAULT_DATE_LOOKING, disabledDates = null, disabled = false, displayFormat = DATE_FORMAT, i18n = LANGUAGE, inputClassName = null, inputId, inputName, minDate = undefined, maxDate = undefined, startTime = undefined, endTime = undefined, onChange, placeholder = null, popupClassName = null, popoverDirection = undefined, primaryColor = DEFAULT_COLOR, separator = DEFAULT_SEPARATOR, showFooter = false, showShortcuts = false, startFrom = null, startWeekOn = START_WEEK, readOnly = false, required = false, toggleClassName = null, toggleIcon = undefined, useRange = true, value = null } = props;
     // Refs
     const containerRef = require$$0.useRef(null);
     const calendarContainerRef = require$$0.useRef(null);
@@ -2395,9 +2423,17 @@ const Datepicker = (props) => {
                     start: value.startDate,
                     end: value.endDate
                 });
-                setInputText(`${dateFormat(value.startDate, displayFormat, i18n)}${asSingle
-                    ? ""
-                    : ` ${separator} ${dateFormat(value.endDate, displayFormat, i18n)}`}`);
+                if (asSingle && displayFormat === "MM/DD/YYYY HH:mm - HH:mm") {
+                    const dateOnly = dateFormat(value.startDate, "MM/DD/YYYY", i18n);
+                    const timeStart = startTime ?? dateFormat(value.startDate, "HH:mm", i18n);
+                    const timeEnd = endTime ?? dateFormat(value.endDate, "HH:mm", i18n);
+                    setInputText(`${dateOnly} ${timeStart} - ${timeEnd}`);
+                }
+                else {
+                    setInputText(`${dateFormat(value.startDate, displayFormat, i18n)}${asSingle
+                        ? ""
+                        : ` ${separator} ${dateFormat(value.endDate, displayFormat, i18n)}`}`);
+                }
             }
         }
         if (value && value.startDate === null && value.endDate === null) {
@@ -2407,7 +2443,7 @@ const Datepicker = (props) => {
             });
             setInputText("");
         }
-    }, [asSingle, value, displayFormat, separator, i18n]);
+    }, [asSingle, value, displayFormat, separator, i18n, startTime, endTime]);
     require$$0.useEffect(() => {
         if (startFrom && dateIsValid(startFrom)) {
             const startDate = value?.startDate;
@@ -2480,6 +2516,8 @@ const Datepicker = (props) => {
             inputText,
             maxDate,
             minDate,
+            startTime,
+            endTime,
             onChange,
             period,
             placeholder,
@@ -2498,6 +2536,8 @@ const Datepicker = (props) => {
     }, [
         minDate,
         maxDate,
+        startTime,
+        endTime,
         i18n,
         asSingle,
         onChange,

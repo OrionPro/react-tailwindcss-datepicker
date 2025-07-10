@@ -54,6 +54,9 @@ const Datepicker = (props: DatepickerType) => {
         minDate = undefined,
         maxDate = undefined,
 
+        startTime = undefined,
+        endTime = undefined,
+
         onChange,
 
         placeholder = null,
@@ -223,13 +226,21 @@ const Datepicker = (props: DatepickerType) => {
                     end: value.endDate
                 });
 
-                setInputText(
-                    `${dateFormat(value.startDate, displayFormat, i18n)}${
-                        asSingle
-                            ? ""
-                            : ` ${separator} ${dateFormat(value.endDate, displayFormat, i18n)}`
-                    }`
-                );
+                if (asSingle && displayFormat === "MM/DD/YYYY HH:mm - HH:mm") {
+                    const dateOnly = dateFormat(value.startDate, "MM/DD/YYYY", i18n);
+                    const timeStart = startTime ?? dateFormat(value.startDate, "HH:mm", i18n);
+                    const timeEnd = endTime ?? dateFormat(value.endDate, "HH:mm", i18n);
+
+                    setInputText(`${dateOnly} ${timeStart} - ${timeEnd}`);
+                } else {
+                    setInputText(
+                        `${dateFormat(value.startDate, displayFormat, i18n)}${
+                            asSingle
+                                ? ""
+                                : ` ${separator} ${dateFormat(value.endDate, displayFormat, i18n)}`
+                        }`
+                    );
+                }
             }
         }
 
@@ -241,7 +252,7 @@ const Datepicker = (props: DatepickerType) => {
 
             setInputText("");
         }
-    }, [asSingle, value, displayFormat, separator, i18n]);
+    }, [asSingle, value, displayFormat, separator, i18n, startTime, endTime]);
 
     useEffect(() => {
         if (startFrom && dateIsValid(startFrom)) {
@@ -321,6 +332,8 @@ const Datepicker = (props: DatepickerType) => {
             inputText,
             maxDate,
             minDate,
+            startTime,
+            endTime,
             onChange,
             period,
             placeholder,
@@ -339,6 +352,8 @@ const Datepicker = (props: DatepickerType) => {
     }, [
         minDate,
         maxDate,
+        startTime,
+        endTime,
         i18n,
         asSingle,
         onChange,

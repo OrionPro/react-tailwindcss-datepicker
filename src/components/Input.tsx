@@ -30,6 +30,8 @@ const Input = () => {
         toggleClassName,
         toggleIcon,
         readOnly,
+        startTime,
+        endTime,
         displayFormat,
         inputId,
         inputName,
@@ -65,13 +67,38 @@ const Input = () => {
               : defaultInputClassName;
     }, [inputRef, classNames, primaryColor, inputClassName]);
 
+    const extractDateOnly = (input: string) => {
+        const match = input.match(/\d{2}\/\d{2}\/\d{4}/);
+        return match ? match[0] : null;
+    };
+
     const handleInputChange = useCallback(
         (e: ChangeEvent<HTMLInputElement>) => {
             const inputValue = e.target.value;
 
             const dates: Date[] = [];
-
             if (asSingle) {
+                const dateOnly = extractDateOnly(inputValue);
+
+                if (displayFormat === "MM/DD/YYYY HH:mm - HH:mm" && dateOnly) {
+                    if (!startTime || !endTime) return;
+
+                    const [month, day, year] = dateOnly.split("/");
+                    const baseDate = `${year}-${month}-${day}`;
+
+                    const startDate = new Date(`${baseDate}T${startTime}:00`);
+                    const endDate = new Date(`${baseDate}T${endTime}:00`);
+
+                    dates.push(startDate);
+                    changeDayHover(null);
+                    changeDatepickerValue({ startDate, endDate }, e.target);
+                    const formattedText = `${dateOnly} ${startTime} - ${endTime}`;
+                    changeInputText(formattedText);
+
+                    return;
+                }
+
+                // Normal mode
                 if (dateRegex.test(inputValue)) {
                     const date = dateStringToDate(inputValue);
                     if (date) {
